@@ -15,4 +15,13 @@
         android:text="Button"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="447dp" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="270dp"
+        android:layout_height="343dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        tools:layout_editor_absoluteX="64dp"
+        tools:layout_editor_absoluteY="66dp" />
 </android.support.constraint.ConstraintLayout>

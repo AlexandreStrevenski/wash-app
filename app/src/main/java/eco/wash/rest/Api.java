@@ -14,7 +14,7 @@ import cz.msebera.android.httpclient.params.CoreProtocolPNames;
 
 public class Api {
 
-    private static final String BASE_URL = "https://my.api.com/";
+    private static final String BASE_URL = "https://eco-lavagem.herokuapp.com/";
     private static AsyncHttpClient aSyncClient;
     private static String USER_AGENT = "Our Custom User Agent";
 
@@ -26,6 +26,10 @@ public class Api {
         aSyncClient.getHttpClient().getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, false);
         aSyncClient.getHttpClient().getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, false);
         aSyncClient.getHttpClient().getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+    }
+
+    public static void get(String url, AsyncHttpResponseHandler responseHandler) {
+        aSyncClient.get(getAbsoluteUrl(url), null, responseHandler);
     }
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {

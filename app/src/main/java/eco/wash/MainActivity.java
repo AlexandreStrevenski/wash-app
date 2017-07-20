@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new RestClient().getUser();
+                new RestClient().listAllClients();
             }
         });
 

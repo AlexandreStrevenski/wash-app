@@ -1,5 +1,7 @@
 package eco.wash.rest;
 
+import android.widget.Toast;
+
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
@@ -20,27 +22,8 @@ public class RestClient {
         return sInstance;
     }
 
-    public void getFeed(final ResultsListener<String> aListener) {
-
-        Api.get("feed/", null, new AsyncHttpResponseHandler() {
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if (statusCode == 200) {
-                    aListener.onSuccess("");
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                aListener.onFailure(error);
-            }
-
-        });
-    }
-
-    public void getUser() {
-        Api.get("getUser/", null, new AsyncHttpResponseHandler() {
+    public void listAllClients() {
+        Api.get("client/", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 System.out.println(new String(responseBody));
