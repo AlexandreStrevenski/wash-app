@@ -13,7 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import cz.msebera.android.httpclient.Header;
+import eco.wash.rest.Api;
 import eco.wash.rest.RestClient;
 
 public class MainActivity extends AppCompatActivity
@@ -39,7 +44,19 @@ public class MainActivity extends AppCompatActivity
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new RestClient().listAllClients();
+                Api.get("client/", new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        EditText editText = (EditText) findViewById(R.id.editText);
+                        editText.setText(new String(responseBody));
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        System.out.println(statusCode);
+                        error.printStackTrace();
+                    }
+                });
             }
         });
 

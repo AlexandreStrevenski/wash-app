@@ -23,17 +23,6 @@ public class RestClient {
     }
 
     public void listAllClients() {
-        Api.get("client/", new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                System.out.println(new String(responseBody));
-            }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                System.out.println(statusCode);
-                error.printStackTrace();
-            }
-        });
     }
 }
