@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -18,21 +20,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import cz.msebera.android.httpclient.Header;
+import eco.wash.rest.Api;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationClient;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,31 +59,32 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        Button btnRequest = (Button) findViewById(R.id.btnRequest);
-        btnRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent map = new Intent(MainActivity.this, MapsActivity.class);
-                startActivity(map);
-            }
-        });
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */,
+                        this /* OnConnectionFailedListener */)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
+        mGoogleApiClient.connect();
 
-        /*Button btnRequest = (Button) findViewById(R.id.btnRequest);
+
+        Button btnRequest = (Button) findViewById(R.id.btnRequest);
         btnRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Api.get("client/", new AsyncHttpResponseHandler() {
+                Api.get("findWasher/", new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                        EditText editText = (EditText) findViewById(R.id.editText);
-                        editText.setText(new String(responseBody));
+                        Intent washerAccepted = new Intent(MainActivity.this, WasherAcceptedActivity.class);
+                        startActivity(washerAccepted);
                     }
 
                     @Override
@@ -84,7 +94,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
-        });*/
+        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -161,18 +171,27 @@ public class MainActivity extends AppCompatActivity
                 && ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null) {
-                                LatLng current = new LatLng(location.getLatitude(), location.getLongitude());
-                                mMap.addMarker(new MarkerOptions().position(current).title("Local"));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-                            }
-                        }
-                    });
+            Location mLastKnownLocation = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient);
+
+            LatLng current = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(current).title("Local"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
         }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 }
